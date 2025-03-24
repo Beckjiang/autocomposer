@@ -168,9 +168,20 @@ class BaseUIAutomator(ABC):
 
 class ComposerAutomator(BaseUIAutomator):
     """Composer自动化专用类"""
+    base_config = {
+        "hotkeys": {"open_composer": [ctrl_key, "i"], "new_session": [ctrl_key, "n"]}, # 快捷键
+        "ui_elements": {
+            "agent_mode": "./images/windows/agent_mode.png",
+            "send_button": "./images/windows/send_button.png",
+            "generating": "./images/windows/generating.png",
+        },
+        "wait_timeouts": {"after_open": 1, "per_file": 1, "execution": 300}, # 等待时间
+    }
 
     def __init__(self, config: dict):
-        super().__init__(config)
+        base_config = self.base_config.copy()
+        base_config.update(config)
+        super().__init__(base_config)
         self.validate_config()
 
     def validate_config(self):
@@ -254,7 +265,7 @@ class ComposerAutomator(BaseUIAutomator):
             # 其他系统保持原样
             subprocess.run(["cursor", self.config['project_path']])
 
-        time.sleep(2)
+        time.sleep(3)
 
     def open_composer(self):
         """打开Composer"""
@@ -457,6 +468,7 @@ class ComposerAutomator(BaseUIAutomator):
         while time.time() - start < timeout:
             try:
                 if self.check_element_exist(self.config['ui_elements']['generating']):
+                    self.logger.info("继续等待执行...")
                     time.sleep(5)
                 else:
                     self.logger.info("执行已完成")
@@ -472,21 +484,15 @@ class ComposerAutomator(BaseUIAutomator):
         time.sleep(0.5)
         return True
 
-# 配置文件示例
-CONFIG = {
-    "window_title": "fastapi-demo", # 窗口标题
-    "project_path": "D:/fastapi-demo", # 项目路径
-    "hotkeys": {"open_composer": [ctrl_key, "i"], "new_session": [ctrl_key, "n"]}, # 快捷键
-    "wait_timeouts": {"after_open": 1, "per_file": 1, "execution": 300}, # 等待时间
-    "ui_elements": {
-        "agent_mode": "./images/windows/agent_mode.png",
-        "send_button": "./images/windows/send_button.png",
-        "generating": "./images/windows/generating.png",
-    },
-}
 
 # 使用示例
 if __name__ == "__main__":
+    # 配置文件示例
+    CONFIG = {
+        "window_title": "fastapi-demo", # 窗口标题
+        "project_path": "D:/fastapi-demo", # 项目路径
+    }
+
     automator = ComposerAutomator(CONFIG)
     # 完整流程执行
     success = automator.execute_workflow(
