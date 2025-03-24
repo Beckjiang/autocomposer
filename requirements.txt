@@ -1,0 +1,7 @@
+pyautogui 
+pygetwindow 
+keyboard 
+opencv-python       
+Collecting 
+pyautogui
+mss
